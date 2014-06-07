@@ -1,0 +1,42 @@
+{
+    "name": "phpbp",
+    "description": "PHP Boilerplate",
+    "type": "application",
+    "homepage": "https://github.com/pavel-arapov/phpbp",
+    "authors": [
+        {
+            "name": "Pavel Arapov",
+            "homepage": "https://github.com/pavel-arapov",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "mobiledetect/mobiledetectlib": "dev-master",
+        "recaptcha/php5": "v1.0.0",
+        "smarty/smarty": "dev-trunk"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/schmittjoh/PHP-Parser"
+        }
+    ],
+    "require-dev": {
+        "phpdocumentor/phpdocumentor": "~2.5",
+        "phploc/phploc": "~2.0",
+        "phpmd/phpmd": "~1.5",
+        "pdepend/pdepend" : "1.1.1",
+        "phpunit/phpunit": "~4.1",
+        "satooshi/php-coveralls": "dev-master",
+        "sebastian/phpcpd": "~2.0",
+        "sebastian/phpdcd": "~1.0",
+        "sensiolabs/security-checker": "~1.3",
+        "squizlabs/php_codesniffer": "~1.5",
+        "scrutinizer/utils": "dev-master",
+        "jms/php-manipulator": "dev-master",
+        "nikic/php-parser": "dev-master#958e1f4e2355ed22245920a8057a3d7c34a0fb4c",
+        "jms/serializer": "dev-master",
+        "scrutinizer/php-analyzer": "dev-legacy"
+    }
+}

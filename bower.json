@@ -1,0 +1,12 @@
+{
+    "name": "phpbp",
+    "version": "0.0.0",
+    "devDependencies": {
+        "jasmine-jquery" : "~2.0",
+        "jasmine-ajax": "~2.0"
+    },
+    "dependencies": {
+        "jquery": "~1.11",
+        "jquery.ui": "*"
+    }
+}

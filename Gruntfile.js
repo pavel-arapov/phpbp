@@ -9,10 +9,13 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-imagemin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks("grunt-jscs-checker");
     grunt.loadNpmTasks('grunt-gh-pages');
     grunt.loadNpmTasks('grunt-phpcpd');
     grunt.loadNpmTasks('grunt-phpcs');
@@ -41,6 +44,7 @@ module.exports = function (grunt) {
             build: 'build',
             bin: 'vendor/bin',
             test: 'tests/units/',
+            reports: 'reports',
             src: 'src/**/*.php'
         },
 
@@ -80,7 +84,12 @@ module.exports = function (grunt) {
         jshint: {
             src: [
                 'Gruntfile.js',
-                'src/js/**/*.js'
+                'src/js/**/*.js',
+                'src/js/jquery/**/*.js',
+                '!src/js/CLEditor/**/*.js',
+                '!src/js/cropper/**/*.js',
+                '!src/js/urdu/**/*.js',
+                '!src/js/tinymce/**/*.js'
             ],
             test: [
                 'src/js/**/*.spec.js'
@@ -96,6 +105,49 @@ module.exports = function (grunt) {
                 sub: true,
                 boss: true,
                 eqnull: true
+            }
+        },
+
+        /**
+         * JavaScript Coding Style checker
+         */
+        jscs: {
+            src: [
+                "src/js/*.js",
+                '!src/js/cropper/**/*.js',
+                '!src/js/urdu/**/*.js',
+                '!src/js/pluginDetect.js',
+                '!src/js/tinymce/**/*.js'
+            ],
+            options: {
+                config: ".jscs.json",
+                requireCurlyBraces: [ "if" ]
+            }
+        },
+
+        /**
+         * CSSLint - verification CSS files
+         */
+        csslint: {
+            strict: {
+                options: {
+                    import: 2
+                },
+                src: [
+                    '!src/css/**/*.css',
+                    '!src/css/ui-lightness/**/*.css',
+                    'src/themes/goo_main/css/global.css',
+                ]
+            },
+            lax: {
+                options: {
+                    import: false
+                },
+                src: [
+                    '!src/css/**/*.css',
+                    '!src/css/ui-lightness/**/*.css',
+                    'src/themes/goo_main/css/global.scss',
+                ]
             }
         },
 
@@ -119,6 +171,14 @@ module.exports = function (grunt) {
                         expand: true
                     }
                 ]
+            }
+        },
+
+        sass: {
+            compile: {
+                files: {
+                    'src/themes/goo_main/css/global.css': 'src/themes/goo_main/css/global.scss'
+                }
             }
         },
 
@@ -205,7 +265,7 @@ module.exports = function (grunt) {
             },
             options: {
                 bin: '<%= paths.bin %>/phpmd',
-                reportFormat: 'text',
+                reportFile: '<%= paths.reports %>/phpmd/<%= grunt.template.today("isoDateTime") %>.xml',
                 rulesets: ['codesize', 'controversial', 'design', 'naming', 'unusedcode'].join(',')
             }
         },
@@ -306,7 +366,7 @@ module.exports = function (grunt) {
                 command: '<%= paths.bin %>/phpdcd src/'
             },
             phpdoc: {
-                command: '<%= paths.bin %>/phpdoc.php src'
+                command: '<%= paths.bin %>/phpdoc.php'
             },
             phploc: {
                 command: '<%= paths.bin %>/phploc src/'
@@ -314,8 +374,38 @@ module.exports = function (grunt) {
             phpalizer: {
                 command: '<%= paths.bin %>/phpalizer run src'
             },
+            pdepend: {
+                command: function () {
+                    var now = grunt.template.today("isoDateTime"),
+                        directory = 'reports/pdepend/' + now,
+                        mkdir = 'mkdir -p ' + directory,
+                        summary = directory + '/summary.xml',
+                        chart = directory + '/chart.svg',
+                        pyramid = directory + '/pyramid.svg',
+                        pdepend;
+
+                    pdepend = 'php <%= paths.bin %>/pdepend ';
+                    pdepend += '--summary-xml=' + summary + ' ';
+                    pdepend += '--jdepend-chart=' + chart + ' ';
+                    pdepend += '--overview-pyramid=' + pyramid + ' ';
+                    pdepend += 'src/';
+
+                    return mkdir + ' && ' + pdepend;
+                }
+            },
             'security-checker': {
                 command: '<%= paths.bin %>/security-checker security:check'
+            }
+        },
+
+        /**
+         * Creating directories for reports
+         */
+        mkdir: {
+            phpmd: {
+                options: {
+                    create: ['<%= paths.reports %>/phpmd']
+                }
             }
         },
 
@@ -365,6 +455,7 @@ module.exports = function (grunt) {
     grunt.registerTask('phpdcd', ['shell:phpdcd']);
     grunt.registerTask('phpdoc', ['shell:phpdoc']);
     grunt.registerTask('phploc', ['shell:phploc']);
+    grunt.registerTask('pdepend', ['shell:pdepend']);
     grunt.registerTask('phpalizer', ['shell:phpalizer']);
     grunt.registerTask('security-checker', ['shell:security-checker']);
 
@@ -381,7 +472,20 @@ module.exports = function (grunt) {
     /**
      * Code quality tasks
      */
-    grunt.registerTask('quality', ['jshint', 'phplint', 'phpcs', 'phpcpd', 'phploc', 'phpdcd', 'phpmd', 'phpalizer', 'security-checker']);
+    grunt.registerTask('quality', [
+        'jshint',
+        'csslint',
+        'phplint',
+        'phpcs',
+        'phpcpd',
+        'phploc',
+        'phpdcd',
+        'mkdir:phpmd',
+        'phpmd',
+        'phpalizer',
+        'pdepend',
+        'security-checker'
+    ]);
 
     /**
      * Regenerating documentation
@@ -389,18 +493,23 @@ module.exports = function (grunt) {
     grunt.registerTask('doc', ['phpdoc', 'gh-pages']);
 
     /**
+     * Image minification
+     */
+    grunt.registerTask('image', ['imagemin'] );
+
+    /**
      * Build project
      */
-    grunt.registerTask('build', [ 'test', 'clean', 'copy', 'cssmin', 'uglify', 'imagemin']);
+    grunt.registerTask('build', [ 'test', 'clean', 'copy', 'cssmin', 'uglify', 'imagemin:dynamic']);
 
     /**
      * Commit project
      */
-    grunt.registerTask('commit', ['prompt:commit', 'bump-increment', 'changelog']);
+    grunt.registerTask('version', ['prompt:commit', 'bump-increment', 'changelog']);
 
     /**
      * Creating tag and do the commit with "version" information
      */
-    grunt.registerTask('label', ['bump::commit-only']);
+    grunt.registerTask('commit', ['bump::commit-only']);
 
 };

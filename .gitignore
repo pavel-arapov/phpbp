@@ -1,0 +1,6 @@
+# Ignoring technical IDE paths, build and library paths
+.idea/
+build/
+node_modules/
+vendor/
+vendorjs/

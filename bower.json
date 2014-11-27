@@ -1,12 +1,17 @@
 {
-    "name": "phpbp",
-    "version": "0.0.0",
-    "devDependencies": {
-        "jasmine-jquery" : "~2.0",
-        "jasmine-ajax": "~2.0"
-    },
-    "dependencies": {
-        "jquery": "~1.11",
-        "jquery.ui": "*"
-    }
+  "name": "phpbp",
+  "version": "0.0.1",
+  "devDependencies": {
+    "jasmine-jquery": "~2.0",
+    "jasmine-ajax": "~2.0"
+  },
+  "dependencies": {
+    "jquery": "~1.11",
+    "jquery.ui": "*",
+    "angular": "1.2",
+    "angular-sanitize": "~1.3.4",
+    "angular-bootstrap": "~0.12.0",
+    "angular-ui-router": "~0.2.13",
+    "angular-ui-select": "~0.9.0"
+  }
 }

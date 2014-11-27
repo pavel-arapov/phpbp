@@ -29,24 +29,21 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-karma');
 
     /**
+     * Load in our build configuration file.
+     */
+    var userConfig = require( './build.config.js' );
+
+    /**
      * Parameter from prompt (command-line)
      */
     var optionIncrement = grunt.option('increment');
 
-    grunt.initConfig({
+    grunt.initConfig(grunt.util._.extend(userConfig, {
 
         /**
          * Defining grunt configuration variables
          */
         pkg: grunt.file.readJSON('package.json'),
-
-        paths: {
-            build: 'build',
-            bin: 'vendor/bin',
-            test: 'tests/units/',
-            reports: 'reports',
-            src: 'src/**/*.php'
-        },
 
         /**
          * Incrementing project version
@@ -84,12 +81,7 @@ module.exports = function (grunt) {
         jshint: {
             src: [
                 'Gruntfile.js',
-                'src/js/**/*.js',
-                'src/js/jquery/**/*.js',
-                '!src/js/CLEditor/**/*.js',
-                '!src/js/cropper/**/*.js',
-                '!src/js/urdu/**/*.js',
-                '!src/js/tinymce/**/*.js'
+                'src/js/**/*.js'
             ],
             test: [
                 'src/js/**/*.spec.js'
@@ -113,11 +105,7 @@ module.exports = function (grunt) {
          */
         jscs: {
             src: [
-                "src/js/*.js",
-                '!src/js/cropper/**/*.js',
-                '!src/js/urdu/**/*.js',
-                '!src/js/pluginDetect.js',
-                '!src/js/tinymce/**/*.js'
+                "src/js/*.js"
             ],
             options: {
                 config: ".jscs.json",
@@ -134,9 +122,7 @@ module.exports = function (grunt) {
                     import: 2
                 },
                 src: [
-                    '!src/css/**/*.css',
-                    '!src/css/ui-lightness/**/*.css',
-                    'src/themes/goo_main/css/global.css',
+                    '!src/css/**/*.css'
                 ]
             },
             lax: {
@@ -144,9 +130,7 @@ module.exports = function (grunt) {
                     import: false
                 },
                 src: [
-                    '!src/css/**/*.css',
-                    '!src/css/ui-lightness/**/*.css',
-                    'src/themes/goo_main/css/global.scss',
+                    '!src/css/**/*.css'
                 ]
             }
         },
@@ -441,7 +425,7 @@ module.exports = function (grunt) {
                 tasks: 'security-checker'
             }
         }
-    });
+    }));
 
     grunt.registerTask('bump-increment', 'Increment the version number.', function (inc) {
         var increment = inc || optionIncrement || grunt.config('deploy.increment');
